@@ -1,3 +1,5 @@
+let isError = false;
+
 const getNews = async function () {
     const API_KEY = "81e21b97f22e470ebd9eddda8d1f3d01";
 
@@ -8,7 +10,8 @@ const getNews = async function () {
     try {
         const res = await fetch(url);
         if (!res.ok) {
-            throw new Error(`Something went wrong: ${res.status}`);
+            //throw new Error(`Something went wrong: ${res.status}`);
+            isError = true;
         }
         const data = await res.json();
         //console.log(data.articles)
@@ -23,25 +26,32 @@ const getNews = async function () {
 }
 const renderNews = (news) => {
     const newsList = document.getElementById("news-list");
+    if (isError) {
+        newsList.innerHTML +=`
+        <h2> News can not be fetched</h2>
+        <img src="./404.jpg" alt="">
+        `
+    } else {
+        news.forEach((item) => {
+            const {
+                title,
+                description,
+                urlToImage,
+                url
+            } = item;
+            newsList.innerHTML += `
+            <div class="col-md-6 col-lg-4 col-xl-3">
+             <div class="card">
+             <img src="${urlToImage}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">${title}</h5>
+                <p class="card-text">${description}</p>
+                <a href="${url}" class="btn btn-primary">Details</a>
+              </div>
+             </div>
+            </div>`
+        });
+    }
 
-    news.forEach((item) => {
-        const {
-            title,
-            description,
-            urlToImage,
-            url
-        } = item;
-        newsList.innerHTML += `
-        <div class="col-md-6 col-lg-4 col-xl-3">
-         <div class="card">
-         <img src="${urlToImage}" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">${title}</h5>
-            <p class="card-text">${description}</p>
-            <a href="${url}" class="btn btn-primary">Details</a>
-          </div>
-         </div>
-        </div>`
-    })
 };
 window.addEventListener("load", getNews);
